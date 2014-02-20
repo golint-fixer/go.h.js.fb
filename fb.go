@@ -9,9 +9,8 @@ import (
 
 // Represents an async load and FB.init call for the Facebook JS SDK.
 type Init struct {
-	URL        string `json:"-"`
-	AppID      uint64 `json:"appId"`
-	ChannelURL string `json:"channelUrl"`
+	URL   string `json:"-"`
+	AppID uint64 `json:"appId"`
 }
 
 const defaultURL = "//connect.facebook.net/en_US/all.js"
