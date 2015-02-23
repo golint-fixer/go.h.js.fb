@@ -4,7 +4,8 @@ package fb
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+
+	"github.com/daaku/go.h"
 )
 
 // Represents an async load and FB.init call for the Facebook JS SDK.
@@ -15,18 +16,27 @@ type Init struct {
 
 const defaultURL = "//connect.facebook.net/en_US/all.js"
 
-func (i *Init) URLs() []string {
+func (i *Init) HTML() (h.HTML, error) {
 	url := i.URL
 	if url == "" {
 		url = defaultURL
 	}
-	return []string{url}
-}
 
-func (i *Init) Script() string {
 	encoded, err := json.Marshal(i)
 	if err != nil {
-		log.Fatalf("Failed to json.Marshal sdk.Init %+v with error %s", i, err)
+		return nil, fmt.Errorf("Failed to json.Marshal sdk.Init %+v with error %s", i, err)
 	}
-	return fmt.Sprintf("FB.init(%s)", string(encoded))
+	return &h.Frag{
+		&h.Script{
+			Src:   url,
+			Async: true,
+		},
+		&h.Script{
+			Inner: &h.Frag{
+				h.Unsafe("window.fbAsyncInit=function(){FB.init("),
+				h.UnsafeBytes(encoded),
+				h.Unsafe(")"),
+			},
+		},
+	}, nil
 }
